@@ -22,8 +22,8 @@ import java.util.*
 /**
  * 返回文件的MD5值
  */
-fun File.md5(): String? {
-    try {
+fun File.md5(): String {
+    return try {
         val fileInputStream = FileInputStream(this)
         val digestInputStream = DigestInputStream(fileInputStream, MessageDigest.getInstance("MD5"))
         val buffer = ByteArray(1024 * 256)
@@ -33,11 +33,11 @@ fun File.md5(): String? {
         val md5 = digestInputStream.messageDigest.digest()
         val stringBuilder = StringBuilder()
         for (b in md5) stringBuilder.append(String.format("%02X", b))
-        return stringBuilder.toString().toLowerCase(Locale.ROOT)
+        stringBuilder.toString().toLowerCase(Locale.ROOT)
     } catch (e: IOException) {
         Net.printStackTrace(e)
+        ""
     }
-    return null
 }
 
 /**
