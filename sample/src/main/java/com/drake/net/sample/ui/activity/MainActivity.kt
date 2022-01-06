@@ -16,7 +16,13 @@
 
 package com.drake.net.sample.ui.activity
 
+import android.os.Handler
+import android.os.Looper
 import androidx.core.view.GravityCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.ui.AppBarConfiguration
@@ -24,6 +30,8 @@ import androidx.navigation.ui.setupWithNavController
 import com.drake.engine.base.EngineActivity
 import com.drake.net.sample.R
 import com.drake.net.sample.databinding.ActivityMainBinding
+import com.drake.net.sample.model.UserModel
+import com.drake.net.sample.ui.fragment.PullRefreshFragment
 import com.drake.statusbar.immersive
 
 /**
@@ -32,7 +40,7 @@ import com.drake.statusbar.immersive
 class MainActivity : EngineActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     override fun initView() {
-        immersive(binding.toolbar, true)
+     /*   immersive(binding.toolbar, true)
         setSupportActionBar(binding.toolbar)
         val navController = findNavController(R.id.nav)
         binding.toolbar.setupWithNavController(
@@ -43,14 +51,29 @@ class MainActivity : EngineActivity<ActivityMainBinding>(R.layout.activity_main)
             binding.toolbar.subtitle =
                 (destination as FragmentNavigator.Destination).className.substringAfterLast('.')
         }
-        binding.drawerNav.setupWithNavController(navController)
+        binding.drawerNav.setupWithNavController(navController)*/
+
+        val f = PullRefreshFragment()
+        addFragment(f, R.id.nav)
+        //延迟动作 避开初始化问题
+        val h = Handler(Looper.getMainLooper())
+        h.postDelayed(Runnable {
+            f.getData<UserModel>()
+        }, 3000)
     }
 
     override fun initData() {
     }
 
-    override fun onBackPressed() {
+    /*override fun onBackPressed() {
         if (binding.drawer.isDrawerOpen(GravityCompat.START)) binding.drawer.closeDrawers() else super.onBackPressed()
+    }*/
+    private inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> FragmentTransaction) {
+        beginTransaction().func().commit()
+    }
+
+    fun FragmentActivity.addFragment(fragment: Fragment, frameId: Int) {
+        supportFragmentManager.inTransaction { add(frameId, fragment) }
     }
 }
 

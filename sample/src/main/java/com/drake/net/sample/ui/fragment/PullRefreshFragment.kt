@@ -16,11 +16,13 @@
 
 package com.drake.net.sample.ui.fragment
 
+import android.os.Parcelable
 import com.drake.brv.utils.linear
 import com.drake.brv.utils.setup
 import com.drake.engine.base.EngineFragment
 import com.drake.net.Get
 import com.drake.net.sample.R
+import com.drake.net.sample.converter.SerializationConverter
 import com.drake.net.sample.databinding.FragmentPullRefreshBinding
 import com.drake.net.sample.model.UserModel
 import com.drake.net.utils.scope
@@ -30,13 +32,30 @@ class PullRefreshFragment :
     EngineFragment<FragmentPullRefreshBinding>(R.layout.fragment_pull_refresh) {
 
     override fun initView() {
-        binding.rv.linear().setup {
+        /*binding.rv.linear().setup {
             addType<UserModel>(R.layout.item_list)
         }
 
         binding.page.onRefresh {
             scope {
                 val data = Get<List<UserModel>>("list") {
+                    param("page", index)
+                }.await()
+                addData(data) {
+                    index < 100 // 最多加载100个
+                }
+            }
+        }.autoRefresh()*/
+    }
+
+    inline fun <reified B : Parcelable> getData() {
+        binding.rv.linear().setup {
+            addType<B>(R.layout.item_list)
+        }
+        binding.page.onRefresh {
+            scope {
+                val data = Get<List<B>>("list") {
+                    converter = SerializationConverter()
                     param("page", index)
                 }.await()
                 addData(data) {
